@@ -1,8 +1,12 @@
 const userRepository = require("../Repositories/userRepository");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const SALT_ROUNDS = 10;
 
 exports.getAllUsers = async () => {
-    return userRepository.findAll();
-}
+  return userRepository.findAll();
+};
 
 exports.getUserById = async (id) => {
   const user = await userRepository.findById(id);
@@ -11,19 +15,56 @@ exports.getUserById = async (id) => {
 };
 
 exports.getUserByEmail = async (email, password) => {
-    const user = await userRepository.findByEmail(email, password);
-    if (!user) throw new Error("Incorrect email or password");
-    return user;
-}
+  const user = await userRepository.findByEmail(email);
+  if (!user) throw new Error("Invalid email or password");
 
-exports.createUser = async (username, email, password, street, city, zip) => {
-  return userRepository.createUser(username, email, password, street, city, zip);
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) throw new Error("Invalid email or password");
+
+  const token = jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET,
+  );
+
+  user.password = undefined;
+
+  return { user, token };
 };
 
-exports.updateUser = async (id, username, email, password, street, city, zip) => {
-  return userRepository.updateUser(id, username, email, password, street, city, zip);
+exports.createUser = async (username, email, password, address) => {
+  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+  return await userRepository.createUser(
+    username,
+    email,
+    hashedPassword,
+    address?.street || null,
+    address?.city || null,
+    address?.zip || null
+  );
+};
+
+
+exports.updateUser = async (
+  id,
+  username,
+  email,
+  password,
+  street,
+  city,
+  zip
+) => {
+  return userRepository.updateUser(
+    id,
+    username,
+    email,
+    password,
+    street,
+    city,
+    zip
+  );
 };
 
 exports.deleteUser = async (id) => {
   await userRepository.deleteUser(id);
-}
+};

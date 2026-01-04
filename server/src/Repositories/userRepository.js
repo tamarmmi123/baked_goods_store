@@ -19,16 +19,24 @@ exports.findById = async (id) => {
   return new User(row.id, row.username, row.email, row.password, address);
 };
 
-exports.findByEmail = async (email, password) => {
+exports.findByEmail = async (email) => {
   const result = await pool.query(
-    "SELECT * FROM users WHERE email=$1 AND password=$2",
-    [email, password]
+    "SELECT * FROM users WHERE email = $1",
+    [email]
   );
+
   if (!result.rows[0]) return null;
 
   const row = result.rows[0];
   const address = new Address(row.street, row.city, row.zip);
-  return new User(row.id, row.username, row.email, row.password, address);
+
+  return new User(
+    row.id,
+    row.name,
+    row.email,
+    row.password,
+    address
+  );
 };
 
 exports.updateUser = async (id, username, email, password, street, city, zip) => {
@@ -45,18 +53,18 @@ exports.updateUser = async (id, username, email, password, street, city, zip) =>
   return new User(row.id, row.username, row.email, row.password, address);
 };
 
-exports.createUser = async (username, email, password, street, city, zip) => {
+exports.createUser = async (username, email, hashedPassword, street, city, zip) => {
   try {
     const result = await pool.query(
       `INSERT INTO users (username, email, password, street, city, zip)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [username, email, password, street, city, zip]
+      [username, email, hashedPassword, street || null, city || null, zip || null]
     );
 
     const row = result.rows[0];
     const address = new Address(row.street, row.city, row.zip);
-    return new User(row.id, row.username, row.email, row.password, address);
+    return new User(row.id, row.username, row.email, undefined, address);
   } catch (err) {
     if (err.code === "23505") {
       throw new Error("Email already exists");

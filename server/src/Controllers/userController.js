@@ -21,24 +21,27 @@ exports.getUser = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await userService.getUserByEmail(email, password);
-    res.json(user);
+    const { user, token } = await userService.getUserByEmail(email, password);
+
+    res.json({ user, token });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(401).json({ error: err.message });
   }
 };
 
 exports.register = async (req, res) => {
   try {
     const { username, email, password, street, city, zip } = req.body;
+
+    const address = { street, city, zip };
+
     const newUser = await userService.createUser(
       username,
       email,
       password,
-      street,
-      city,
-      zip
+      address
     );
+
     res.status(201).json(newUser);
   } catch (err) {
     res.status(500).json({ error: err.message });
