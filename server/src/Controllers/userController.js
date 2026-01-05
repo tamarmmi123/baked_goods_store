@@ -23,7 +23,14 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
     const { user, token } = await userService.getUserByEmail(email, password);
 
-    res.json({ user, token });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ user });
   } catch (err) {
     res.status(401).json({ error: err.message });
   }
@@ -32,17 +39,23 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
   try {
     const { username, email, password, street, city, zip } = req.body;
-
     const address = { street, city, zip };
 
-    const newUser = await userService.createUser(
+    const { user, token } = await userService.createUser(
       username,
       email,
       password,
       address
     );
 
-    res.status(201).json(newUser);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(201).json({ user });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -75,4 +88,18 @@ exports.deleteUser = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+exports.getMe = async (req, res) => {
+  res.json(req.user);
+};
+
+exports.logout = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  res.sendStatus(204);
 };
