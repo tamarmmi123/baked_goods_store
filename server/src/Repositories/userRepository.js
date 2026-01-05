@@ -32,7 +32,7 @@ exports.findByEmail = async (email) => {
 
   return new User(
     row.id,
-    row.name,
+    row.username,
     row.email,
     row.password,
     address
