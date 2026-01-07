@@ -30,7 +30,7 @@ exports.login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ user });
+    res.json({ user, token });
   } catch (err) {
     res.status(401).json({ error: err.message });
   }
@@ -55,7 +55,7 @@ exports.register = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(201).json({ user });
+    res.status(201).json({ user, token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -91,7 +91,13 @@ exports.deleteUser = async (req, res) => {
 };
 
 exports.getMe = async (req, res) => {
-  res.json(req.user);
+  try {
+    const user = await userService.getUserById(req.user.id);
+    user.password = undefined; // Ensure password is not sent
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 exports.logout = (req, res) => {

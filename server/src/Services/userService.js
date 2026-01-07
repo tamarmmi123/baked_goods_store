@@ -34,7 +34,7 @@ exports.getUserByEmail = async (email, password) => {
 exports.createUser = async (username, email, password, address) => {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-  return await userRepository.createUser(
+  const user = await userRepository.createUser(
     username,
     email,
     hashedPassword,
@@ -42,6 +42,15 @@ exports.createUser = async (username, email, password, address) => {
     address?.city || null,
     address?.zip || null
   );
+
+  const token = jwt.sign(
+    { id: user.id, email: user.email },
+    process.env.JWT_SECRET,
+  );
+
+  user.password = undefined;
+
+  return { user, token };
 };
 
 
