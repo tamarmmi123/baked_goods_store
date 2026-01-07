@@ -1,18 +1,19 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../api/authApi";
-import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [login, { isLoading, error }] = useLoginMutation();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login({ email, password }).unwrap();
-      // On success, perhaps redirect
+      navigate("/products");
     } catch (err) {
       // Error handled by RTK Query
     }
@@ -50,13 +51,7 @@ export default function Login() {
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-500 hover:text-primary-700"
-              aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5" />
-              ) : (
-                <Eye className="h-5 w-5" />
-              )}
             </button>
           </div>
         </div>

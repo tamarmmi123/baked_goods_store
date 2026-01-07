@@ -8,7 +8,7 @@ export const authApi = createApi({
     credentials: "include", 
   }),
   endpoints: (builder) => ({
-    login: builder.mutation<User, LoginPayload>({
+    login: builder.mutation<{ user: User; token: string }, LoginPayload>({
       query: (body) => ({
         url: "/users/login",
         method: "POST",
@@ -16,7 +16,7 @@ export const authApi = createApi({
       }),
     }),
 
-    register: builder.mutation<User, RegisterPayload>({
+    register: builder.mutation<{ user: User; token: string }, RegisterPayload>({
       query: (body) => ({
         url: "/users/register",
         method: "POST",

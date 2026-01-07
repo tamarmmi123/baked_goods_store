@@ -1,10 +1,38 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import logo from "../../assets/Logo.png";
-import { Search, Home, LayoutDashboard, LogIn, UserPlus, ShoppingCart } from "lucide-react";
+import {
+  Search,
+  Home,
+  LayoutDashboard,
+  LogIn,
+  UserPlus,
+  ShoppingCart,
+  Plus,
+} from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const urlSearchTerm =
+      new URLSearchParams(location.search).get("search") || "";
+    setSearchTerm(urlSearchTerm);
+  }, [location.search]);
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    const params = new URLSearchParams(location.search);
+    if (value) {
+      params.set("search", value);
+    } else {
+      params.delete("search");
+    }
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
 
   return (
     <nav className="bg-primary-500 text-white shadow-md">
@@ -19,23 +47,40 @@ export default function Navbar() {
               <input
                 type="text"
                 placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-10 pr-3 py-1 rounded-md border border-gray-300 bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary w-80"
               />
             </div>
           </div>
 
           <div className="hidden md:flex space-x-6">
-            <Link to="/" className="text-muted hover:text-text transition tooltip" data-title="Home">
+            <Link
+              to="/"
+              className="text-muted hover:text-text transition tooltip"
+              data-title="Home"
+            >
               <Home className="h-5 w-5" />
             </Link>
             <Link
-              to="/dashboard"
+              to="/products"
               className="text-muted hover:text-text transition tooltip"
-              data-title="Dashboard"
+              data-title="Products"
             >
               <LayoutDashboard className="h-5 w-5" />
             </Link>
-            <Link to="/login" className="text-muted hover:text-text transition tooltip" data-title="Login">
+            <Link
+              to="/products/add-product"
+              className="text-muted hover:text-text transition tooltip"
+              data-title="Add Product"
+            >
+              <Plus className="h-5 w-5" />
+            </Link>
+            <Link
+              to="/login"
+              className="text-muted hover:text-text transition tooltip"
+              data-title="Login"
+            >
               <LogIn className="h-5 w-5" />
             </Link>
             <Link
@@ -57,7 +102,7 @@ export default function Navbar() {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="focus:outline-none"
+              className="focus:outline-none text-text"
             >
               {isOpen ? "X" : "☰"}
             </button>
@@ -77,13 +122,21 @@ export default function Navbar() {
             Home
           </Link>
           <Link
-            to="/dashboard"
+            to="/products"
             className="block px-3 py-2 rounded-md text-muted hover:text-text transition"
             onClick={() => setIsOpen(false)}
-            title="Dashboard"
+            title="Products"
           >
             <LayoutDashboard className="h-5 w-5 inline mr-2" />
-            Dashboard
+            Products
+          </Link>
+          <Link
+            to="/products/add-product"
+            className="block px-3 py-2 rounded-md text-muted hover:text-text transition"
+            title="Add Product"
+          >
+            <Plus className="h-5 w-5 inline mr-2" />
+            Add Product
           </Link>
           <Link
             to="/login"

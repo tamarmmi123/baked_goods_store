@@ -1,7 +1,14 @@
+export interface Address {
+  street: string;
+  city: string;
+  zip: string;
+}
+
 export interface User {
   id: string;
   username: string;
   email: string;
+  address: Address;
 }
 
 export interface LoginPayload {
