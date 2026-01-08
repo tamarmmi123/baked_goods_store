@@ -5,4 +5,5 @@ export interface Product {
   qty: number;
   price: number;
   imageUrl: string;
+  role: "user" | "admin";
 }

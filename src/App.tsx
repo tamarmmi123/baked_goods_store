@@ -18,8 +18,22 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/products/add-product" element={<AddProductPage />} />
-          <Route path="/products/update/:id" element={<UpdateProduct />} />
+          <Route
+            path="/products/add-product"
+            element={
+              <RequireAuth roles={["admin"]}>
+                <AddProductPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/products/update/:id"
+            element={
+              <RequireAuth roles={["admin"]}>
+                <UpdateProduct />
+              </RequireAuth>
+            }
+          />
         </Routes>
       </Router>
     </AuthBootstrap>

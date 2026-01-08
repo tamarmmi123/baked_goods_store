@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
 import ConfirmModal from "../components/ConfirmModal";
 import { useDeleteProductMutation } from "../api/productsApi";
+import { useAuth } from "../../auth/hooks/useAuth";
 
 const Products: React.FC = () => {
   const { data: products, error, isLoading } = useGetAllProductsQuery();
@@ -12,6 +13,9 @@ const Products: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deleteModalId, setDeleteModalId] = useState<string | null>(null);
+
+  const user = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const searchTerm = searchParams.get("search") || "";
 
@@ -80,41 +84,44 @@ const Products: React.FC = () => {
 
               <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-95 backdrop-blur-sm p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out border-t border-gray-200">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 relative">
-                    <button
-                      onClick={() =>
-                        setOpenMenuId(
-                          openMenuId === product.id ? null : product.id
-                        )
-                      }
-                      className="p-2 rounded-full hover:bg-gray-100"
-                    >
-                      <MoreVertical className="w-5 h-5 text-gray-600" />
-                    </button>
+                  {isAdmin && (
+                    <div className="flex items-center space-x-2 relative">
+                      <button
+                        onClick={() =>
+                          setOpenMenuId(
+                            openMenuId === product.id ? null : product.id
+                          )
+                        }
+                        className="p-2 rounded-full hover:bg-gray-100"
+                      >
+                        <MoreVertical className="w-5 h-5 text-gray-600" />
+                      </button>
 
-                    {openMenuId === product.id && (
-                      <div className="absolute bottom-12 w-32 bg-white border rounded-lg shadow-lg z-20">
-                        <button
-                          onClick={() => {
-                            navigate(`/products/update/${product.id}`);
-                            setOpenMenuId(null);
-                          }}
-                          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-background text-sm text-gray-600"
-                        >
-                          <Pencil className="w-4 h-4 text-gray-600" />
-                          <span>Update</span>
-                        </button>
+                      {openMenuId === product.id && (
+                        <div className="absolute bottom-12 w-32 bg-white border rounded-lg shadow-lg z-20">
+                          <button
+                            onClick={() => {
+                              navigate(`/products/update/${product.id}`);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full flex items-center gap-2 px-4 py-2 hover:bg-background text-sm text-gray-600"
+                          >
+                            <Pencil className="w-4 h-4" />
+                            Update
+                          </button>
 
-                        <button
-                          onClick={() => setDeleteModalId(product.id)}
-                          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-background text-sm text-gray-600"
-                        >
-                          <Trash2 className="w-4 h-4 text-gray-600" />
-                          <span>Delete</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                          <button
+                            onClick={() => setDeleteModalId(product.id)}
+                            className="w-full flex items-center gap-2 px-4 py-2 hover:bg-background text-sm text-gray-600"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
                   <div className="flex items-center space-x-2 bg-gray-50 rounded-lg p-2">
                     <button
                       onClick={() => updateQuantity(product.id, -1)}

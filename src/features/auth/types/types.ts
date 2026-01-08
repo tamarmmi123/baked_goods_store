@@ -9,6 +9,7 @@ export interface User {
   username: string;
   email: string;
   address: Address;
+  role: "user" | "admin";
 }
 
 export interface LoginPayload {

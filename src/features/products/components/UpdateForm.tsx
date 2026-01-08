@@ -44,6 +44,7 @@ export default function UpdateForm({ initialData, onSubmit, isLoading }: Props) 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
+        <label htmlFor="productname">Product Name</label>
       <input
         name="productname"
         placeholder="Product name"
@@ -53,6 +54,7 @@ export default function UpdateForm({ initialData, onSubmit, isLoading }: Props) 
         required
       />
 
+      <label htmlFor="description">Description</label>
       <textarea
         name="description"
         placeholder="Description"
@@ -61,6 +63,7 @@ export default function UpdateForm({ initialData, onSubmit, isLoading }: Props) 
         className="bg-white input w-full px-4 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-300"
       />
 
+      <label htmlFor="qty">Quantity</label>
       <input
         type="number"
         name="qty"
@@ -70,6 +73,7 @@ export default function UpdateForm({ initialData, onSubmit, isLoading }: Props) 
         className="bg-white input w-full px-4 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-300"
       />
 
+        <label htmlFor="price">Price</label>
       <input
         type="number"
         name="price"
@@ -80,6 +84,7 @@ export default function UpdateForm({ initialData, onSubmit, isLoading }: Props) 
         required
       />
 
+        <label htmlFor="imageUrl">Image URL</label>
       <input
         name="imageUrl"
         placeholder="Image URL"

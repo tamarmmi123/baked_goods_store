@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useAuth } from "../../features/auth/hooks/useAuth";
 import logo from "../../assets/Logo.png";
 import {
   Search,
@@ -9,6 +10,8 @@ import {
   UserPlus,
   ShoppingCart,
   Plus,
+  Menu,
+  X,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -16,6 +19,9 @@ export default function Navbar() {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+
+  const user = useAuth();
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
     const urlSearchTerm =
@@ -25,13 +31,21 @@ export default function Navbar() {
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
-    const params = new URLSearchParams(location.search);
-    if (value) {
-      params.set("search", value);
-    } else {
-      params.delete("search");
+
+    if (location.pathname.startsWith("/products")) {
+      const params = new URLSearchParams();
+      if (value) params.set("search", value);
+      const newUrl = `/products${value ? `?${params.toString()}` : ""}`;
+      navigate(newUrl, { replace: true });
     }
-    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (searchTerm) params.set("search", searchTerm);
+    const newUrl = `/products${searchTerm ? `?${params.toString()}` : ""}`;
+    navigate(newUrl);
   };
 
   return (
@@ -41,8 +55,9 @@ export default function Navbar() {
           <div className="flex items-center space-x-4">
             <img src={logo} alt="logo" className="h-14 w-auto" />
           </div>
+
           <div>
-            <div className="relative">
+            <form onSubmit={handleSearchSubmit} className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted h-4 w-4" />
               <input
                 type="text"
@@ -51,7 +66,7 @@ export default function Navbar() {
                 onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-10 pr-3 py-1 rounded-md border border-gray-300 bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary w-80"
               />
-            </div>
+            </form>
           </div>
 
           <div className="hidden md:flex space-x-6">
@@ -69,13 +84,15 @@ export default function Navbar() {
             >
               <LayoutDashboard className="h-5 w-5" />
             </Link>
-            <Link
-              to="/products/add-product"
-              className="text-muted hover:text-text transition tooltip"
-              data-title="Add Product"
-            >
-              <Plus className="h-5 w-5" />
-            </Link>
+            {isAdmin && (
+              <Link
+                to="/products/add-product"
+                className="text-muted hover:text-text transition tooltip"
+                data-title="Add Product"
+              >
+                <Plus className="h-5 w-5" />
+              </Link>
+            )}
             <Link
               to="/login"
               className="text-muted hover:text-text transition tooltip"
@@ -104,7 +121,11 @@ export default function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               className="focus:outline-none text-text"
             >
-              {isOpen ? "X" : "☰"}
+              {isOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -130,14 +151,17 @@ export default function Navbar() {
             <LayoutDashboard className="h-5 w-5 inline mr-2" />
             Products
           </Link>
-          <Link
-            to="/products/add-product"
-            className="block px-3 py-2 rounded-md text-muted hover:text-text transition"
-            title="Add Product"
-          >
-            <Plus className="h-5 w-5 inline mr-2" />
-            Add Product
-          </Link>
+          {isAdmin && (
+            <Link
+              to="/products/add-product"
+              className="block px-3 py-2 rounded-md text-muted hover:text-text transition"
+              onClick={() => setIsOpen(false)}
+              title="Add Product"
+            >
+              <Plus className="h-5 w-5 inline mr-2" />
+              Add Product
+            </Link>
+          )}
           <Link
             to="/login"
             className="block px-3 py-2 rounded-md text-muted hover:text-text transition"
