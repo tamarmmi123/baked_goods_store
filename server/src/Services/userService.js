@@ -22,7 +22,7 @@ exports.getUserByEmail = async (email, password) => {
   if (!isMatch) throw new Error("Invalid email or password");
 
   const token = jwt.sign(
-    { id: user.id, email: user.email },
+    { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
   );
 
@@ -31,7 +31,7 @@ exports.getUserByEmail = async (email, password) => {
   return { user, token };
 };
 
-exports.createUser = async (username, email, password, address) => {
+exports.createUser = async (username, email, password, address, role) => {
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   const user = await userRepository.createUser(
@@ -40,11 +40,12 @@ exports.createUser = async (username, email, password, address) => {
     hashedPassword,
     address?.street || null,
     address?.city || null,
-    address?.zip || null
+    address?.zip || null,
+    role || "user"
   );
 
   const token = jwt.sign(
-    { id: user.id, email: user.email },
+    { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
   );
 
@@ -53,7 +54,6 @@ exports.createUser = async (username, email, password, address) => {
   return { user, token };
 };
 
-
 exports.updateUser = async (
   id,
   username,
@@ -61,16 +61,22 @@ exports.updateUser = async (
   password,
   street,
   city,
-  zip
+  zip,
+  role
 ) => {
+  const hashedPassword = password
+    ? await bcrypt.hash(password, SALT_ROUNDS)
+    : null;
+
   return userRepository.updateUser(
     id,
     username,
     email,
-    password,
+    hashedPassword,
     street,
     city,
-    zip
+    zip,
+    role
   );
 };
 

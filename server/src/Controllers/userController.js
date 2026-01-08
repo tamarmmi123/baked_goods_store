@@ -4,9 +4,9 @@ exports.getAllUsers = async (req, res) => {
   try {
     const users = await userService.getAllUsers();
     res.json(users);
-    } catch (err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
-    }
+  }
 };
 
 exports.getUser = async (req, res) => {
@@ -30,7 +30,15 @@ exports.login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ user, token });
+    res.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    });
   } catch (err) {
     res.status(401).json({ error: err.message });
   }
@@ -55,6 +63,7 @@ exports.register = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    user.password = undefined;
     res.status(201).json({ user, token });
   } catch (err) {
     res.status(500).json({ error: err.message });
