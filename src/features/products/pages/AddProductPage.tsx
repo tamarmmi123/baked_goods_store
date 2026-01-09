@@ -16,9 +16,11 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl mb-4">Add Product</h1>
-      <ProductForm onSubmit={handleAdd} isLoading={isLoading} />
+    <div className="p-6 flex justify-center">
+      <div>
+        <h1 className="text-2xl mb-4">Add Product</h1>
+        <ProductForm onSubmit={handleAdd} isLoading={isLoading} />
+      </div>
     </div>
   );
 }
