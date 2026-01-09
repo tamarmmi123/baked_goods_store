@@ -1,22 +1,22 @@
-const productService = require('../Services/productService');
+const productService = require("../Services/productService");
 
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await productService.getAllProducts();
     res.json(products);
-    } catch (err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
-    }
+  }
 };
 
 exports.getInStockProducts = async (req, res) => {
-    try {
-        const products = await productService.getInStockProducts();
-        res.json(products);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-}
+  try {
+    const products = await productService.getInStockProducts();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 exports.getProduct = async (req, res) => {
   try {
@@ -29,8 +29,26 @@ exports.getProduct = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const { productname, description, qty, price, imageUrl } = req.body;
-    const product = await productService.createProduct(productname, description, qty, price, imageUrl);
+    const {
+      productname,
+      description,
+      qty,
+      price,
+      imageUrl,
+      kashrut,
+      specialRequirements,
+      occasions,
+    } = req.body;
+    const product = await productService.createProduct(
+      productname,
+      description,
+      qty,
+      price,
+      imageUrl,
+      kashrut,
+      specialRequirements,
+      occasions
+    );
     res.status(201).json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -39,8 +57,7 @@ exports.createProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const { productname, description, qty, price, imageUrl } = req.body;
-    const product = await productService.updateProduct(req.params.id, productname, description, qty, price, imageUrl);
+    const product = await productService.updateProduct(req.params.id, req.body);
     res.json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -53,5 +70,5 @@ exports.deleteProduct = async (req, res) => {
     res.status(204).end();
   } catch (err) {
     res.status(500).json({ error: err.message });
-  } 
+  }
 };

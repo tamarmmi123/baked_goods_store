@@ -23,7 +23,6 @@ const productRoutes = require("./routes/productRoutes");
 app.use("/api/products", productRoutes);
 
 app.get("/test", (req, res) => {
-  console.log(req.cookies);
   res.send("ok");
 });
 
