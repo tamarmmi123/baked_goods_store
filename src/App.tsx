@@ -18,6 +18,10 @@ import { useAuth } from "./features/auth/hooks/useAuth";
 import OrderConfirmationPage from "./features/checkout/pages/OrderConfirmationPage";
 import CheckoutPage from "./features/checkout/pages/CheckoutPage";
 import Home from "./features/home/pages/Home";
+import MyOrdersPage from "./features/orders/pages/MyOrderPage";
+import OrdersPage from "./features/orders/pages/OrderPage";
+import AdminOrderDetailsPage from "./features/orders/pages/AdminOrderDetailsPage";
+import MyOrderDetailsPage from "./features/orders/pages/MyOrderDetailsPage";
 
 function App() {
   const user = useAuth();
@@ -44,6 +48,39 @@ function App() {
             element={
               <RequireAuth roles={["admin"]}>
                 <UpdateProduct />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/my-orders"
+            element={
+              <RequireAuth roles={["user", "admin"]}>
+                <MyOrdersPage />
+              </RequireAuth>
+            }
+          />
+
+          <Route
+            path="/orders"
+            element={
+              <RequireAuth roles={["admin"]}>
+                <OrdersPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/my-orders/:orderId"
+            element={
+              <RequireAuth roles={["user", "admin"]}>
+                <MyOrderDetailsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/orders/:orderId"
+            element={
+              <RequireAuth roles={["admin"]}>
+                <AdminOrderDetailsPage />
               </RequireAuth>
             }
           />

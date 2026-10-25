@@ -1,4 +1,3 @@
-
 export interface CustomerProfile {
   id: string;
   username: string;
@@ -21,16 +20,16 @@ export interface CheckoutRequest {
 }
 
 export interface OrderItem {
-  id?: string;
-  product_id?: string;
-  product_size_id?: string;
-  product_type_id?: string | null;
-  product_name?: string;
-  productName?: string;
-  size_label?: string;
-  type_label?: string | null;
+  id: string;
+  order_id?: string;
+  product_id: string;
+  product_size_id: string;
+  product_type_id: string | null;
+  product_name: string;
+  size_label: string;
+  type_label: string | null;
   quantity: number;
-  unit_price?: string | number;
+  unit_price: string | number;
   subtotal: string | number;
 }
 
@@ -39,14 +38,16 @@ export interface Order {
   user_id?: string;
   cart_id?: string;
   status: string;
-  payment_status?: string;
+  payment_status: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  shipping_address: string;
+  shipping_city: string;
+  postal_code: string;
   subtotal: string | number;
   delivery_fee: string | number;
   total: string | number;
+  created_at: string;
   items: OrderItem[];
-}
-
-export interface CheckoutResponse {
-  message: string;
-  order: Order;
 }

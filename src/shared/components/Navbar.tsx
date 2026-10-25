@@ -13,6 +13,7 @@ import {
   Plus,
   Menu,
   X,
+  ClipboardList,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -95,6 +96,15 @@ export default function Navbar() {
             >
               <LayoutDashboard className="h-5 w-5" />
             </Link>
+            {isUser && (
+              <Link
+                to="/my-orders"
+                className="text-muted hover:text-text transition tooltip"
+                data-title="My Orders"
+              >
+                <ClipboardList className="h-5 w-5" />
+              </Link>
+            )}
             {isAdmin && (
               <Link
                 to="/products/add-product"
@@ -102,6 +112,15 @@ export default function Navbar() {
                 data-title="Add Product"
               >
                 <Plus className="h-5 w-5" />
+              </Link>
+            )}
+            {isAdmin && (
+              <Link
+                to="/orders"
+                className="text-muted hover:text-text transition tooltip"
+                data-title="Orders"
+              >
+                <ClipboardList className="h-5 w-5" />
               </Link>
             )}
             <Link
@@ -170,6 +189,17 @@ export default function Navbar() {
             <LayoutDashboard className="h-5 w-5 inline mr-2" />
             Products
           </Link>
+          {isUser && (
+            <Link
+              to="/my-orders"
+              className="block px-3 py-2 rounded-md text-muted hover:text-text transition"
+              onClick={() => setIsOpen(false)}
+              title="My Orders"
+            >
+              <ClipboardList className="h-5 w-5 inline mr-2" />
+              My Orders
+            </Link>
+          )}
           {isAdmin && (
             <Link
               to="/products/add-product"
@@ -179,6 +209,17 @@ export default function Navbar() {
             >
               <Plus className="h-5 w-5 inline mr-2" />
               Add Product
+            </Link>
+          )}
+          {isAdmin && (
+            <Link
+              to="/orders"
+              className="block px-3 py-2 rounded-md text-muted hover:text-text transition"
+              onClick={() => setIsOpen(false)}
+              title="Orders"
+            >
+              <ClipboardList className="h-5 w-5 inline mr-2" />
+              Orders
             </Link>
           )}
           <Link
