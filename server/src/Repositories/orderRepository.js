@@ -1,4 +1,3 @@
-
 const pool = require("../config/db");
 
 exports.findActiveCartForUpdate = async (client, cartId, userId) => {
@@ -9,7 +8,7 @@ exports.findActiveCartForUpdate = async (client, cartId, userId) => {
        AND user_id = $2
        AND status = 'active'
      FOR UPDATE`,
-    [cartId, userId]
+    [cartId, userId],
   );
 
   return result.rows[0] || null;
@@ -43,7 +42,7 @@ exports.findItemsForCheckout = async (client, cartId) => {
      WHERE ci.cart_id = $1
      ORDER BY ps.id, ci.id
      FOR UPDATE OF ci, ps, p`,
-    [cartId]
+    [cartId],
   );
 
   return result.rows;
@@ -74,7 +73,7 @@ exports.createOrder = async (client, order) => {
       order.subtotal,
       order.deliveryFee,
       order.total,
-    ]
+    ],
   );
 
   return result.rows[0];
@@ -99,7 +98,7 @@ exports.createOrderItem = async (client, item) => {
       item.quantity,
       item.unitPrice,
       item.subtotal,
-    ]
+    ],
   );
 };
 
@@ -110,7 +109,7 @@ exports.decreaseStock = async (client, sizeId, quantity) => {
      WHERE id = $2
        AND qty >= $1
      RETURNING id`,
-    [quantity, sizeId]
+    [quantity, sizeId],
   );
 
   if (result.rowCount !== 1) {
@@ -123,7 +122,7 @@ exports.markCartCheckedOut = async (client, cartId) => {
     `UPDATE carts
      SET status = 'checked_out', updated_at = NOW()
      WHERE id = $1`,
-    [cartId]
+    [cartId],
   );
 };
 
@@ -132,7 +131,7 @@ exports.findOrderByIdForUser = async (orderId, userId) => {
     `SELECT *
      FROM orders
      WHERE id = $1 AND user_id = $2`,
-    [orderId, userId]
+    [orderId, userId],
   );
 
   return result.rows[0] || null;
@@ -144,8 +143,140 @@ exports.findOrderItems = async (orderId) => {
      FROM order_items
      WHERE order_id = $1
      ORDER BY id`,
-    [orderId]
+    [orderId],
   );
 
   return result.rows;
+};
+
+// Admin
+exports.findAllOrders = async ({ status, search, limit, offset }) => {
+  const conditions = [];
+  const values = [];
+
+  if (status) {
+    values.push(status);
+    conditions.push(`o.status = $${values.length}`);
+  }
+
+  if (search) {
+    values.push(`%${search}%`);
+    const index = values.length;
+
+    conditions.push(`(
+      o.id::text ILIKE $${index}
+      OR o.full_name ILIKE $${index}
+      OR o.email ILIKE $${index}
+    )`);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  values.push(limit);
+  const limitIndex = values.length;
+
+  values.push(offset);
+  const offsetIndex = values.length;
+
+  const result = await pool.query(
+    `SELECT o.*
+     FROM orders o
+     ${where}
+     ORDER BY o.created_at DESC
+     LIMIT $${limitIndex}
+     OFFSET $${offsetIndex}`,
+    values,
+  );
+
+  return result.rows;
+};
+
+// Admin: count matching orders for pagination
+exports.countOrders = async ({ status, search }) => {
+  const conditions = [];
+  const values = [];
+
+  if (status) {
+    values.push(status);
+    conditions.push(`status = $${values.length}`);
+  }
+
+  if (search) {
+    values.push(`%${search}%`);
+    const index = values.length;
+
+    conditions.push(`(
+      id::text ILIKE $${index}
+      OR full_name ILIKE $${index}
+      OR email ILIKE $${index}
+    )`);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const result = await pool.query(
+    `SELECT COUNT(*)::int AS total
+     FROM orders
+     ${where}`,
+    values,
+  );
+
+  return result.rows[0].total;
+};
+
+// Customer: retrieve their orders
+exports.findOrdersForUser = async (userId, { limit, offset }) => {
+  const result = await pool.query(
+    `
+    SELECT
+      o.*,
+      COUNT(oi.id)::int AS item_count
+    FROM orders o
+    LEFT JOIN order_items oi ON oi.order_id = o.id
+    WHERE o.user_id = $1
+    GROUP BY o.id
+    ORDER BY o.created_at DESC
+    LIMIT $2 OFFSET $3
+    `,
+    [userId, limit, offset],
+  );
+
+  return result.rows;
+};
+
+// Customer: count their orders
+exports.countOrdersForUser = async (userId) => {
+  const result = await pool.query(
+    `SELECT COUNT(*)::int AS total
+     FROM orders
+     WHERE user_id = $1`,
+    [userId],
+  );
+
+  return result.rows[0].total;
+};
+
+// retrieve any order by UUID
+exports.findOrderById = async (orderId) => {
+  const result = await pool.query(
+    `SELECT *
+     FROM orders
+     WHERE id = $1`,
+    [orderId],
+  );
+
+  return result.rows[0] || null;
+};
+
+// update fulfillment status
+exports.updateOrderStatus = async (orderId, status) => {
+  const result = await pool.query(
+    `UPDATE orders
+     SET status = $1
+     WHERE id = $2
+     RETURNING *`,
+    [status, orderId],
+  );
+
+  return result.rows[0] || null;
 };

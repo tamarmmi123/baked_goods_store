@@ -32,9 +32,11 @@ app.use("/api/cart", cartRoutes);
 const cartItemRoutes = require("./routes/cartItemRoutes");
 app.use("/api/cart", cartItemRoutes);
 
-// Checkout routes
 const checkoutRoutes = require("./routes/checkoutRoutes");
 app.use("/api/checkout", checkoutRoutes);
+
+const orderRoutes = require("./routes/orderRoutes");
+app.use("/api/orders", orderRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
