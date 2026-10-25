@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../features/auth/hooks/useAuth";
+import { useGetActiveCartQuery } from "../../features/cart/api/cartApi";
 import logo from "../../assets/Logo.png";
 import {
   Search,
@@ -22,6 +23,16 @@ export default function Navbar() {
 
   const user = useAuth();
   const isAdmin = user?.role === "admin";
+  const isUser = user?.role === "user";
+
+  const userId = user?.id;
+
+  const { data: cart } = useGetActiveCartQuery(userId ?? "", {
+    skip: !userId,
+  });
+
+  const cartCount =
+    cart?.items.reduce((total, item) => total + item.quantity, 0) ?? 0;
 
   useEffect(() => {
     const urlSearchTerm =
@@ -107,12 +118,20 @@ export default function Navbar() {
             >
               <UserPlus className="h-5 w-5" />
             </Link>
+
             <Link
               to="/shopping-cart"
-              className="text-muted hover:text-text transition tooltip"
+              aria-label={`Shopping cart, ${cartCount} items`}
+              className="relative inline-flex text-muted hover:text-text transition tooltip"
               data-title="Shopping Cart"
             >
               <ShoppingCart className="h-5 w-5" />
+
+              {cartCount > 0 && (
+                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-semibold leading-none text-white ring-2 ring-white">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
             </Link>
           </div>
 
@@ -180,13 +199,22 @@ export default function Navbar() {
             <UserPlus className="h-5 w-5 inline mr-2" />
             Register
           </Link>
+
           <Link
             to="/shopping-cart"
             className="block px-3 py-2 rounded-md text-muted hover:text-text transition"
             onClick={() => setIsOpen(false)}
             title="Shopping Cart"
           >
-            <ShoppingCart className="h-5 w-5 inline mr-2" />
+            <span className="relative mr-2 inline-flex align-middle">
+              <ShoppingCart className="h-5 w-5" />
+
+              {cartCount > 0 && (
+                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-semibold leading-none text-white ring-2 ring-white">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
+            </span>
             Shopping Cart
           </Link>
         </div>

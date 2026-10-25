@@ -6,7 +6,7 @@ export default function AddProductPage() {
   const navigate = useNavigate();
   const [addProduct, { isLoading }] = useAddProductMutation();
 
-  const handleAdd = async (data: any) => {
+  const handleAdd = async (data: any) => {    
     try {
       await addProduct(data).unwrap();
       navigate("/products");
