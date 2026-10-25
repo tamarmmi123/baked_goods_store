@@ -31,24 +31,38 @@ exports.createProduct = async (req, res) => {
   try {
     const {
       productname,
-      description,
-      qty,
-      price,
-      imageUrl,
+      category,
       kashrut,
-      specialRequirements,
+      specialrequirements,
       occasions,
+      sizes,
+      types,
     } = req.body;
-    const product = await productService.createProduct(
+
+    if (!productname || !category) {
+      return res
+        .status(400)
+        .json({ error: "productname and category are required" });
+    }
+
+    if (sizes && !Array.isArray(sizes)) {
+      return res.status(400).json({ error: "sizes must be an array" });
+    }
+
+    if (types && !Array.isArray(types)) {
+      return res.status(400).json({ error: "types must be an array" });
+    }
+
+    const product = await productService.createProduct({
       productname,
-      description,
-      qty,
-      price,
-      imageUrl,
+      category,
       kashrut,
-      specialRequirements,
-      occasions
-    );
+      specialrequirements,
+      occasions,
+      sizes,
+      types,
+    });
+
     res.status(201).json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -57,7 +71,17 @@ exports.createProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const product = await productService.updateProduct(req.params.id, req.body);
+    const data = req.body;
+
+    if (data.sizes && !Array.isArray(data.sizes)) {
+      return res.status(400).json({ error: "Sizes must be an array" });
+    }
+
+    if (data.types && !Array.isArray(data.types)) {
+      return res.status(400).json({ error: "types must be an array" });
+    }
+
+    const product = await productService.updateProduct(req.params.id, data);
     res.json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -66,9 +90,13 @@ exports.updateProduct = async (req, res) => {
 
 exports.deleteProduct = async (req, res) => {
   try {
-    await productService.deleteProduct(req.params.id);
-    res.status(204).end();
+    const product = await productService.deleteProduct(req.params.id);
+    res.status(200).json({
+      message: "Product deactivated successfully",
+      product,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const status = err.message === "Product not found" ? 404 : 500;
+    res.status(status).json({ error: err.message });
   }
 };

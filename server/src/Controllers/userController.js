@@ -53,7 +53,7 @@ exports.register = async (req, res) => {
       username,
       email,
       password,
-      address
+      address,
     );
 
     res.cookie("token", token, {
@@ -73,7 +73,13 @@ exports.register = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (String(req.user.id) !== String(id) && req.user.role !== "admin") {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
     const { username, email, password, street, city, zip } = req.body;
+
     const updatedUser = await userService.updateUser(
       id,
       username,
@@ -81,11 +87,17 @@ exports.updateUser = async (req, res) => {
       password,
       street,
       city,
-      zip
+      zip,
     );
-    res.json(updatedUser);
+
+    if (updatedUser) {
+      updatedUser.password = undefined;
+    }
+
+    return res.json(updatedUser);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Update user error:", err);
+    return res.status(500).json({ error: "Failed to update user" });
   }
 };
 
@@ -102,7 +114,7 @@ exports.deleteUser = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await userService.getUserById(req.user.id);
-    user.password = undefined; // Ensure password is not sent
+    user.password = undefined;
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });

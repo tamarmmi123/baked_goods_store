@@ -12,7 +12,7 @@ app.use(
   cors({
     origin: "http://localhost:3000",
     credentials: true,
-  })
+  }),
 );
 
 app.use(cookieParser());
@@ -26,6 +26,15 @@ app.get("/test", (req, res) => {
   res.send("ok");
 });
 
+const cartRoutes = require("./routes/cartRoutes");
+app.use("/api/cart", cartRoutes);
+
+const cartItemRoutes = require("./routes/cartItemRoutes");
+app.use("/api/cart", cartItemRoutes);
+
+// Checkout routes
+const checkoutRoutes = require("./routes/checkoutRoutes");
+app.use("/api/checkout", checkoutRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

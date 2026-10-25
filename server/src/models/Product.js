@@ -2,23 +2,26 @@ class Product {
   constructor({
     id,
     productname,
-    description,
-    price,
-    imageUrl,
-    qty = Number.MAX_SAFE_INTEGER,
-    kashrut = "parav",
-    specialRequirements = [],
+    qty = 0,
+    kashrut = "parev",
+    specialrequirements = [],
     occasions = [],
+    category,
+    is_active = true,
+    types = [],
+    sizes = [],
   }) {
     this.id = id;
     this.productname = productname;
-    this.description = description;
-    this.price = price; 
-    this.imageUrl = imageUrl;
     this.qty = qty;
     this.kashrut = kashrut;
-    this.specialRequirements = specialRequirements;
+    this.specialrequirements = specialrequirements;
     this.occasions = occasions;
+    this.category = category;
+    this.isActive = is_active;
+
+    this.types = types;
+    this.sizes = sizes;
   }
 }
 

@@ -3,32 +3,57 @@ const Address = require("../models/Address");
 const User = require("../models/User");
 
 exports.findAll = async () => {
-    const result = await pool.query("SELECT * FROM users");
-    return result.rows.map(row => {
-        const address = new Address(row.street, row.city, row.zip);
-        return new User(row.id, row.username, row.email, row.password, address, row.role);
-    });
-}
+  const result = await pool.query("SELECT * FROM users");
+  return result.rows.map((row) => {
+    const address = new Address(row.street, row.city, row.zip);
+    return new User(
+      row.id,
+      row.username,
+      row.email,
+      row.password,
+      address,
+      row.role,
+    );
+  });
+};
 
 exports.findById = async (id) => {
-  const result = await pool.query("SELECT * FROM users WHERE id=$1", [id]);
+  const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+
   if (!result.rows[0]) return null;
 
   const row = result.rows[0];
-  const address = new Address(row.street, row.city, row.zip);
-  return new User(row.id, row.username, row.email, row.password, address, row.role);
+  const addressData = row.address || {};
+
+  const address = new Address(
+    addressData.street,
+    addressData.city,
+    addressData.zip,
+  );
+
+  return new User(
+    row.id,
+    row.username,
+    row.email,
+    undefined,
+    address,
+    row.role,
+  );
 };
 
 exports.findByEmail = async (email) => {
-  const result = await pool.query(
-    "SELECT * FROM users WHERE email = $1",
-    [email]
-  );
-
+  const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+    email,
+  ]);
   if (!result.rows[0]) return null;
 
   const row = result.rows[0];
-  const address = new Address(row.street, row.city, row.zip);
+  const addressData = row.address || {};
+  const address = new Address(
+    addressData.street,
+    addressData.city,
+    addressData.zip,
+  );
 
   return new User(
     row.id,
@@ -36,40 +61,83 @@ exports.findByEmail = async (email) => {
     row.email,
     row.password,
     address,
-    row.role
+    row.role,
   );
 };
 
-exports.updateUser = async (id, username, email, password, street, city, zip, role) => {
+exports.updateUser = async (
+  id,
+  username,
+  email,
+  password,
+  street,
+  city,
+  zip,
+  role,
+) => {
+  const address = { street, city, zip };
   const result = await pool.query(
     `UPDATE users
-     SET username=$1, email=$2, password=$3, street=$4, city=$5, zip=$6, role=$7
-     WHERE id=$8
+     SET username=$1, email=$2, password=$3, address=$4, role=$5
+     WHERE id=$6
      RETURNING *`,
-    [username, email, password, street, city, zip, role, id]
+    [username, email, password, address, role, id],
   );
 
   const row = result.rows[0];
-  const address = new Address(row.street, row.city, row.zip);
-  return new User(row.id, row.username, row.email, row.password, address, row.role);
+  const addressObj = row.address || {};
+  const addressInstance = new Address(
+    addressObj.street,
+    addressObj.city,
+    addressObj.zip,
+  );
+
+  return new User(
+    row.id,
+    row.username,
+    row.email,
+    row.password,
+    addressInstance,
+    row.role,
+  );
 };
 
-exports.createUser = async (username, email, hashedPassword, street, city, zip, role) => {
+exports.createUser = async (
+  username,
+  email,
+  hashedPassword,
+  street,
+  city,
+  zip,
+  role,
+) => {
   try {
+    const address = { street, city, zip };
     const result = await pool.query(
-      `INSERT INTO users (username, email, password, street, city, zip, role)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO users (username, email, password, address, role)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [username, email, hashedPassword, street || null, city || null, zip || null, role]
+      [username, email, hashedPassword, address, role],
     );
 
     const row = result.rows[0];
-    const address = new Address(row.street, row.city, row.zip);
-    return new User(row.id, row.username, row.email, undefined, address, row.role);
+    const addressObj = row.address || {};
+    const addressInstance = new Address(
+      addressObj.street,
+      addressObj.city,
+      addressObj.zip,
+    );
+
+    return new User(
+      row.id,
+      row.username,
+      row.email,
+      undefined,
+      addressInstance,
+      row.role,
+    );
   } catch (err) {
-    if (err.code === "23505") {
-      throw new Error("Email already exists");
-    }
+    if (err.code === "23505") throw new Error("Email already exists");
     throw err;
   }
 };
