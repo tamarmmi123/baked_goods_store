@@ -17,6 +17,7 @@ import CartPage from "./features/cart/pages/CartPage";
 import { useAuth } from "./features/auth/hooks/useAuth";
 import OrderConfirmationPage from "./features/checkout/pages/OrderConfirmationPage";
 import CheckoutPage from "./features/checkout/pages/CheckoutPage";
+import Home from "./features/home/pages/Home";
 
 function App() {
   const user = useAuth();
@@ -26,6 +27,7 @@ function App() {
       <Router>
         <Navbar />
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/products" element={<Products />} />
