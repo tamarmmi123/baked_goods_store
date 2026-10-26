@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   ClipboardList,
+  Factory,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -123,6 +124,16 @@ export default function Navbar() {
                 <ClipboardList className="h-5 w-5" />
               </Link>
             )}
+            {isAdmin && (
+              <Link
+                to="/admin/production"
+                className="text-muted hover:text-text transition tooltip"
+                data-title="Production Dashboard"
+                aria-label="Production Dashboard"
+              >
+                <Factory className="h-5 w-5" />
+              </Link>
+            )}
             <Link
               to="/login"
               className="text-muted hover:text-text transition tooltip"
@@ -220,6 +231,17 @@ export default function Navbar() {
             >
               <ClipboardList className="h-5 w-5 inline mr-2" />
               Orders
+            </Link>
+          )}
+          {isAdmin && (
+            <Link
+              to="/admin/production"
+              className="block px-3 py-2 rounded-md text-muted hover:text-text transition"
+              onClick={() => setIsOpen(false)}
+              title="Production Dashboard"
+            >
+              <Factory className="h-5 w-5 inline mr-2" />
+              Production Dashboard
             </Link>
           )}
           <Link

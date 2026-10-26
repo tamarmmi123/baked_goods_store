@@ -5,6 +5,7 @@ import type {
   OrdersResponse,
   OrderStatus,
   UpdateOrderStatusResponse,
+  ProductionSummaryItem,
 } from "../types/types";
 
 export const ordersApi = createApi({
@@ -65,6 +66,12 @@ export const ordersApi = createApi({
         { type: "Order", id: orderId },
       ],
     }),
+    getPendingProductionSummary: builder.query<
+      { items: ProductionSummaryItem[] },
+      void
+    >({
+      query: () => "/admin/production-summary",
+    }),
   }),
 });
 
@@ -73,4 +80,5 @@ export const {
   useGetAllOrdersQuery,
   useGetAdminOrderQuery,
   useUpdateOrderStatusMutation,
+  useGetPendingProductionSummaryQuery,
 } = ordersApi;

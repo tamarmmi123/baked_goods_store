@@ -22,6 +22,7 @@ import MyOrdersPage from "./features/orders/pages/MyOrderPage";
 import OrdersPage from "./features/orders/pages/OrderPage";
 import AdminOrderDetailsPage from "./features/orders/pages/AdminOrderDetailsPage";
 import MyOrderDetailsPage from "./features/orders/pages/MyOrderDetailsPage";
+import ProductionDashboardPage from "./features/orders/pages/ProductionDashboardPage";
 
 function App() {
   const user = useAuth();
@@ -81,6 +82,14 @@ function App() {
             element={
               <RequireAuth roles={["admin"]}>
                 <AdminOrderDetailsPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/production"
+            element={
+              <RequireAuth roles={["admin"]}>
+                <ProductionDashboardPage />
               </RequireAuth>
             }
           />

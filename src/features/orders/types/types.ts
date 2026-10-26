@@ -59,3 +59,14 @@ export interface OrdersQuery {
   status?: OrderStatus | "";
   search?: string;
 }
+
+export interface ProductionSummaryItem {
+  product_id: string;
+  product_name: string;
+  product_size_id: string;
+  size_label: string;
+  product_type_id: string | null;
+  type_label: string | null;
+  quantity_to_make: number;
+  order_count: number;
+}
