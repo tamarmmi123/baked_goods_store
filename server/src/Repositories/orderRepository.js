@@ -280,3 +280,30 @@ exports.updateOrderStatus = async (orderId, status) => {
 
   return result.rows[0] || null;
 };
+
+exports.getPendingProductionSummary = async () => {
+  const result = await pool.query(`
+    SELECT
+      oi.product_id,
+      oi.product_name,
+      oi.product_size_id,
+      oi.size_label,
+      oi.product_type_id,
+      oi.type_label,
+      SUM(oi.quantity)::int AS quantity_to_make,
+      COUNT(DISTINCT o.id)::int AS order_count
+    FROM orders o
+    JOIN order_items oi ON oi.order_id = o.id
+    WHERE o.status = 'pending'
+    GROUP BY
+      oi.product_id,
+      oi.product_name,
+      oi.product_size_id,
+      oi.size_label,
+      oi.product_type_id,
+      oi.type_label
+    ORDER BY quantity_to_make DESC, oi.product_name ASC
+  `);
+
+  return result.rows;
+}

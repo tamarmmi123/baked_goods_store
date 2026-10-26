@@ -121,3 +121,7 @@ exports.updateOrderStatus = async (orderId, newStatus) => {
 
   return orderRepository.updateOrderStatus(orderId, newStatus);
 };
+
+exports.getPendingProductionSummary = async () => {
+  return orderRepository.getPendingProductionSummary();
+};

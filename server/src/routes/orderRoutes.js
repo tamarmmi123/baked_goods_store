@@ -18,6 +18,13 @@ router.get(
 );
 
 router.get(
+  "/admin/production-summary",
+  auth,
+  requireAdmin,
+  orderController.getPendingProductionSummary
+);
+
+router.get(
   "/admin/:orderId",
   auth,
   requireAdmin,

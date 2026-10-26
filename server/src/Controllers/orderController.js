@@ -66,3 +66,15 @@ exports.updateOrderStatus = async (req, res) => {
     return handleError(res, error, "Unable to update order status.");
   }
 };
+
+exports.getPendingProductionSummary = async (req, res) => {
+  try {
+    const items = await orderService.getPendingProductionSummary();
+    return res.status(200).json({ items });
+  } catch (error) {
+    console.error("Failed to load production summary:", error);
+    return res.status(500).json({
+      message: "Failed to load production summary.",
+    });
+  }
+};
